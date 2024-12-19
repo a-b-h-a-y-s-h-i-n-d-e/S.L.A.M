@@ -8,5 +8,3 @@ class Robot:
     def get_position(self):
         return self.position
 
-class Obstacle:
-    pass

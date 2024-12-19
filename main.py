@@ -1,21 +1,34 @@
 import sys
 import pygame
-from utils import Robot
+from pygame.locals import *
 
 pygame.init()
 
 WIDTH = 200
 HEIGHT = 200
-BACKGROUND = (224, 192, 160)
+BACKGROUND = (150, 150, 150)
 VELOCITY = 5
-
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("SLAM")
 
+
 # robot info
-robot = Robot(100, 100, 7) 
+robot_radius = 7
+robot_x, robot_y = 100, 100
+robot_rect = pygame.Rect(
+        robot_x-robot_radius, robot_y-robot_radius, robot_radius*2, robot_radius*2
+)
+
+# obstacles
+obstacle1 = Rect(20, 20, 10, 40)
+obstacle2 = Rect(150, 140, 10, 40)
+
+# list of obstacles
+obstacles = [obstacle1, obstacle2]
 
 running = True
 while running:
@@ -29,24 +42,29 @@ while running:
                 pygame.display.quit()
                 sys.exit()
 
-    
+
+    # LOGIC for robot movement
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        if robot.x - robot.radius > 0:
-            robot.x -= VELOCITY
-    if keys[pygame.K_RIGHT]:
-        if robot.x + robot.radius < WIDTH:
-            robot.x += VELOCITY
-    if keys[pygame.K_UP]:
-        if robot.y - robot.radius > 0:
-            robot.y -= VELOCITY
-    if keys[pygame.K_DOWN]:
-        if robot.y + robot.radius < HEIGHT:
-            robot.y += VELOCITY
+    prev_position = robot_rect.topleft # saving the previous position 
+    if keys[pygame.K_LEFT] and robot_rect.left > 0:
+        robot_rect.move_ip(-VELOCITY, 0)
+    if keys[pygame.K_RIGHT] and robot_rect.right < WIDTH:
+        robot_rect.move_ip(VELOCITY, 0)
+    if keys[pygame.K_UP] and robot_rect.top > 0:
+        robot_rect.move_ip(0, -VELOCITY)
+    if keys[pygame.K_DOWN] and robot_rect.bottom < HEIGHT:
+        robot_rect.move_ip(0, VELOCITY)
+
+
+    # if collision happens just move to previous movement
+    if any(robot_rect.colliderect(obstacle) for obstacle in obstacles):
+        robot_rect.topleft = prev_position
 
 
     screen.fill(BACKGROUND)
-    pygame.draw.circle(screen, (0, 0, 255) ,(robot.x, robot.y), robot.radius)
+    pygame.draw.circle(screen, BLUE, robot_rect.center, robot_radius)
+    pygame.draw.rect(screen, RED, obstacle1)
+    pygame.draw.rect(screen, RED, obstacle2)
 
     pygame.display.flip()
 
