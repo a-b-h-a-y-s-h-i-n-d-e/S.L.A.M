@@ -1,5 +1,6 @@
+import sys
 import pygame
-from utils import Robot, Obstacle
+from utils import Robot
 
 pygame.init()
 
@@ -22,17 +23,26 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                pygame.display.quit()
+                sys.exit()
 
     
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        robot.x -= VELOCITY
+        if robot.x - robot.radius > 0:
+            robot.x -= VELOCITY
     if keys[pygame.K_RIGHT]:
-        robot.x += VELOCITY
+        if robot.x + robot.radius < WIDTH:
+            robot.x += VELOCITY
     if keys[pygame.K_UP]:
-        robot.y -= VELOCITY
+        if robot.y - robot.radius > 0:
+            robot.y -= VELOCITY
     if keys[pygame.K_DOWN]:
-        robot.y += VELOCITY
+        if robot.y + robot.radius < HEIGHT:
+            robot.y += VELOCITY
 
 
     screen.fill(BACKGROUND)
@@ -40,4 +50,6 @@ while running:
 
     pygame.display.flip()
 
+
+pygame.display.quit()
 pygame.quit()
